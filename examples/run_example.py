@@ -1,147 +1,110 @@
-#!/usr/bin/env python3
 """
-Example: Running the Data Pipeline
-
-This script demonstrates the ingestion and validation pipeline
-using sample tick data. It shows how Data Physics principles
-catch bad data before it enters the system.
-
-Usage:
-    python examples/run_example.py
+Market Data Pipeline Demo
+-------------------------
+Simulates a high-frequency ingestion stream with various anomalies.
+Demonstrates "Data Physics" in action:
+1. Inertia (Context)
+2. Velocity (Price checks)
+3. Entropy (Error handling)
 """
 
-import csv
 import sys
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+import random
 from decimal import Decimal
-from dataclasses import dataclass
-from typing import List, Tuple
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+from ingestion_engine import IngestionEngine, DataQuality
 
-@dataclass
-class TickData:
-    """Validated market tick data."""
-    symbol: str
-    price: Decimal
-    volume: int
-    timestamp: datetime
-    exchange: str
+def generate_stream(count=20):
+    """Generate a synthetic stream of tick data."""
+    base_price = 150.00
+    timestamp = datetime.now(timezone.utc)
+    
+    stream = []
+    
+    # 1. Normal ticks
+    for i in range(5):
+        price = base_price + random.uniform(-0.10, 0.10)
+        stream.append({
+            "symbol": "AAPL",
+            "price": f"{price:.2f}",
+            "volume": random.randint(100, 1000),
+            "timestamp": timestamp.isoformat(),
+            "sequence_id": i + 1
+        })
+        timestamp += timedelta(milliseconds=100)
+        
+    # 2. Flash Crash (Anomaly)
+    stream.append({
+        "symbol": "AAPL",
+        "price": "120.00", # Huge drop
+        "volume": 5000,
+        "timestamp": timestamp.isoformat(),
+        "sequence_id": 6
+    })
+    
+    # 3. Bad Format (Hard Error)
+    stream.append({
+        "symbol": "AAPL",
+        "price": "invalid",
+        "timestamp": timestamp.isoformat()
+    })
+    
+    # 4. Old Data (Staleness)
+    stream.append({
+        "symbol": "AAPL",
+        "price": "150.05",
+        "timestamp": (timestamp - timedelta(minutes=10)).isoformat(),
+        "sequence_id": 8
+    })
+    
+    return stream
 
+def run_demo():
+    print("Initializing Ingestion Engine...")
+    engine = IngestionEngine()
+    
+    stream = generate_stream()
+    print(f"Processing {len(stream)} synthetic messages...\n")
+    
+    print(f"{'SYM':<6} {'PRICE':<10} {'QUAL':<10} {'NOTES'}")
+    print("-" * 60)
+    
+    for msg in stream:
+        tick, quality, errors = engine.validate(msg)
+        
+        price_disp = msg.get("price", "N/A")
+        if tick:
+            price_disp = f"{tick.price:.2f}"
+            
+        note = ""
+        if errors:
+            note = f"{errors[0].rule_violated}: {errors[0].suggestion}"
+            
+        color = ""
+        if quality == DataQuality.VERIFIED:
+            color = "\033[32m" # Green
+        elif quality == DataQuality.SUSPECT:
+            color = "\033[33m" # Yellow
+        elif quality == DataQuality.REJECTED:
+            color = "\033[31m" # Red
+            
+        reset = "\033[0m"
+        
+        print(f"{color}{msg.get('symbol', 'ERR'):<6} {price_disp:<10} {quality.value:<10} {note}{reset}")
 
-class ValidationError(Exception):
-    """Raised when data fails validation."""
-    pass
+    print("\n" + "="*30)
+    print("Pipeline Statistics")
+    print("="*30)
+    stats = engine.get_statistics()
+    for k, v in stats.items():
+        print(f"{k:<20}: {v}")
 
-
-def validate_and_parse(row: dict) -> TickData:
-    """
-    Validate and parse a single row of tick data.
-    
-    Applies Data Physics principles:
-    1. Schema enforcement (type coercion)
-    2. Semantic validation (realistic bounds)
-    3. Temporal validation (no future data)
-    """
-    # Schema enforcement
-    symbol = row["symbol"].strip().upper()
-    if not symbol:
-        raise ValidationError("Empty symbol")
-    
-    price = Decimal(row["price"])
-    if price <= 0 or price > 1_000_000:
-        raise ValidationError(f"Price out of bounds: {price}")
-    
-    volume = int(row["volume"])
-    if volume < 0:
-        raise ValidationError(f"Negative volume: {volume}")
-    
-    timestamp = datetime.fromisoformat(row["timestamp"])
-    if timestamp > datetime.now(timezone.utc):
-        raise ValidationError(f"Future timestamp: {timestamp}")
-    
-    return TickData(
-        symbol=symbol,
-        price=price,
-        volume=volume,
-        timestamp=timestamp,
-        exchange=row.get("exchange", "UNKNOWN"),
-    )
-
-
-def process_file(filepath: Path) -> Tuple[List[TickData], List[dict]]:
-    """
-    Process a CSV file, returning valid ticks and rejected rows.
-    
-    This demonstrates the "Fail Loudly" principle:
-    - Valid data passes through
-    - Invalid data goes to a dead letter queue (rejected list)
-    - Nothing is silently dropped
-    """
-    valid: List[TickData] = []
-    rejected: List[dict] = []
-    
-    with open(filepath, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            try:
-                tick = validate_and_parse(row)
-                valid.append(tick)
-            except (ValidationError, ValueError, KeyError) as e:
-                rejected.append({"row": row, "error": str(e)})
-    
-    return valid, rejected
-
-
-def main():
-    """Run the example pipeline."""
-    print("=" * 60)
-    print("Data Pipeline Example: Ingesting Sample Tick Data")
-    print("=" * 60)
-    print()
-    
-    # Find sample data
-    sample_file = Path(__file__).parent / "sample_tick_data.csv"
-    if not sample_file.exists():
-        print(f"Error: Sample file not found: {sample_file}")
-        sys.exit(1)
-    
-    print(f"Input file: {sample_file}")
-    print()
-    
-    # Process the file
-    valid, rejected = process_file(sample_file)
-    
-    # Report results
-    print(f"Validation Results:")
-    print(f"  - Valid ticks:    {len(valid)}")
-    print(f"  - Rejected rows:  {len(rejected)}")
-    print()
-    
-    if valid:
-        print("Sample Valid Ticks:")
-        print("-" * 60)
-        for tick in valid[:5]:
-            print(f"  {tick.symbol:6} | ${tick.price:>10.2f} | Vol: {tick.volume:>8,}")
-        if len(valid) > 5:
-            print(f"  ... and {len(valid) - 5} more")
-    
-    if rejected:
-        print()
-        print("Rejected Rows (Dead Letter Queue):")
-        print("-" * 60)
-        for item in rejected:
-            print(f"  Error: {item['error']}")
-            print(f"  Row:   {item['row']}")
-    
-    print()
-    print("=" * 60)
-    print("Pipeline complete. All data accounted for.")
-    print("=" * 60)
-
+    print(f"\nDead Letter Queue Size: {len(engine.dead_letter_queue)}")
 
 if __name__ == "__main__":
-    main()
+    run_demo()
