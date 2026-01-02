@@ -22,6 +22,21 @@ I apply the same rigor from high-frequency trading to my AI work:
 - **Validation Gates:** Data is checked before it enters the system, not after.
 - **Audit Trails:** Every transformation is logged for debugging.
 
+```mermaid
+flowchart LR
+    classDef input fill:#1e293b,stroke:#3b82f6,stroke-width:1px,color:#93c5fd;
+    classDef process fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#d8b4fe;
+    classDef verify fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#fca5a5;
+    classDef store fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#6ee7b7;
+
+    Raw["Raw Data"]:::input --> Ingest["Ingest"]:::process
+    Ingest --> Validate{"Validate"}:::verify
+    Validate -->|Pass| Transform["Transform"]:::process
+    Validate -->|Fail| Reject["❌ Reject"]:::verify
+    Transform --> Store[("Store")]:::store
+    Store --> Audit["📋 Audit Log"]:::input
+```
+
 This discipline is the foundation of the "Trust Layer" in my AI projects.
 
 ---
