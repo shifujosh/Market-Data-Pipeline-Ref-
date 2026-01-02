@@ -55,18 +55,41 @@ AI systems are probabilistic. They guess. Financial pipelines are deterministic.
 I apply the same rigor to my AI work:
 
 ```mermaid
-flowchart LR
+flowchart TD
     classDef input fill:#1e293b,stroke:#3b82f6,stroke-width:1px,color:#93c5fd;
-    classDef process fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#d8b4fe;
-    classDef verify fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#fca5a5;
+    classDef schema fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fbbf24;
+    classDef validate fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#d8b4fe;
+    classDef fail fill:#2a1a1a,stroke:#ef4444,stroke-width:2px,color:#fca5a5;
     classDef store fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#6ee7b7;
+    classDef audit fill:#1e293b,stroke:#0ea5e9,stroke-width:2px,color:#7dd3fc;
 
-    Raw["Raw Data"]:::input --> Ingest["Ingest"]:::process
-    Ingest --> Validate{"Validate"}:::verify
-    Validate -->|Pass| Transform["Transform"]:::process
-    Validate -->|Fail| Reject["❌ Reject"]:::verify
+    Raw["Raw Data"]:::input
+    
+    subgraph Schema ["📋 Schema is Contract"]
+        Raw --> Parse["Parse Against Schema"]:::schema
+    end
+    
+    subgraph Edge ["🛡️ Validate at Edge"]
+        Parse --> Struct{"Structure?"}:::validate
+        Struct -->|Pass| Semantic{"Semantics?"}:::validate
+        Semantic -->|Pass| Temporal{"Temporal?"}:::validate
+    end
+    
+    subgraph Loud ["🔊 Fail Loudly"]
+        Struct -->|Fail| DLQ["Dead Letter Queue"]:::fail
+        Semantic -->|Fail| DLQ
+        Temporal -->|Fail| DLQ
+        DLQ --> Alert["⚠️ Alert"]:::fail
+    end
+    
+    Temporal -->|Pass| Transform["Transform"]:::store
     Transform --> Store[("Store")]:::store
-    Store --> Audit["📋 Audit Log"]:::input
+    
+    subgraph Log ["📜 Audit Everything"]
+        Store --> Lineage["Lineage"]:::audit
+        Store --> Timestamps["Timestamps"]:::audit
+        Store --> Diffs["Diffs"]:::audit
+    end
 ```
 
 This discipline is the foundation of the "Trust Layer" in my AI projects.
