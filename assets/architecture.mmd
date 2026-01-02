@@ -1,35 +1,48 @@
 flowchart TD
-    classDef input fill:#1e293b,stroke:#3b82f6,stroke-width:1px,color:#93c5fd;
-    classDef schema fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fbbf24;
-    classDef validate fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#d8b4fe;
-    classDef fail fill:#2a1a1a,stroke:#ef4444,stroke-width:2px,color:#fca5a5;
-    classDef store fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#6ee7b7;
-    classDef audit fill:#1e293b,stroke:#0ea5e9,stroke-width:2px,color:#7dd3fc;
+    %% Dark Mode & Transparency Styles
+    classDef input fill:none,stroke:#93c5fd,stroke-width:2px,color:#93c5fd;
+    classDef schema fill:none,stroke:#fbbf24,stroke-width:2px,color:#fbbf24;
+    classDef validate fill:none,stroke:#d8b4fe,stroke-width:2px,color:#d8b4fe;
+    classDef fail fill:none,stroke:#fca5a5,stroke-width:2px,color:#fca5a5;
+    classDef store fill:none,stroke:#6ee7b7,stroke-width:2px,color:#6ee7b7;
+    classDef audit fill:none,stroke:#7dd3fc,stroke-width:2px,color:#7dd3fc;
+    classDef subgraphStyle fill:none,stroke:#475569,stroke-width:1px,stroke-dasharray:5 5,color:#cbd5e1;
+
+    %% Apply transparent styles to links
+    linkStyle default stroke:#64748b,stroke-width:1px;
 
     Raw["Raw Data"]:::input
     
     subgraph Schema ["📋 Schema is Contract"]
+        direction TB
         Raw --> Parse["Parse Against Schema"]:::schema
     end
+    style Schema fill:none,stroke:#475569,stroke-width:1px,stroke-dasharray:5 5,color:#cbd5e1
     
     subgraph Edge ["🛡️ Validate at Edge"]
+        direction TB
         Parse --> Struct{"Structure?"}:::validate
         Struct -->|Pass| Semantic{"Semantics?"}:::validate
         Semantic -->|Pass| Temporal{"Temporal?"}:::validate
     end
+    style Edge fill:none,stroke:#475569,stroke-width:1px,stroke-dasharray:5 5,color:#cbd5e1
     
     subgraph Loud ["🔊 Fail Loudly"]
+        direction TB
         Struct -->|Fail| DLQ["Dead Letter Queue"]:::fail
         Semantic -->|Fail| DLQ
         Temporal -->|Fail| DLQ
         DLQ --> Alert["⚠️ Alert"]:::fail
     end
+    style Loud fill:none,stroke:#475569,stroke-width:1px,stroke-dasharray:5 5,color:#cbd5e1
     
     Temporal -->|Pass| Transform["Transform"]:::store
     Transform --> Store[("Store")]:::store
     
     subgraph Log ["📜 Audit Everything"]
+        direction TB
         Store --> Lineage["Lineage"]:::audit
         Store --> Timestamps["Timestamps"]:::audit
         Store --> Diffs["Diffs"]:::audit
     end
+    style Log fill:none,stroke:#475569,stroke-width:1px,stroke-dasharray:5 5,color:#cbd5e1
