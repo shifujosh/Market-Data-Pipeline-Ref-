@@ -9,6 +9,8 @@ In high-frequency financial environments, "Data Physics" is paramount. A pipelin
 2.  **Latency Tracking:** Monitoring the "freshness" of the data.
 3.  **Auditability:** Structured logging for every batch drop.
 
+> **Narrative Connection:** This rigorous "Data Physics" approach acts as the **Verification Layer** foundation for my AI projects, specifically [BetSpecs-Engine](https://github.com/shifujosh/BetSpecs-Engine).
+
 ## 🛠️ The Stack
 * **Python 3.9+**: Core transformation logic.
 * **Pandas**: Vectorized data manipulation.
