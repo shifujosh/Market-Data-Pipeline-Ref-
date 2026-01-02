@@ -1,22 +1,40 @@
-# Reference Architecture: Financial Data Ingestion Pipeline
+# Reference: Financial Data Pipeline
 
-> **Note:** This repository is a sanitized reference architecture demonstrating the ETL principles I utilized for high-frequency financial data operations. It does not contain proprietary code.
+> *The discipline that makes AI systems reliable.*
 
-## 🎯 The Objective
-In high-frequency financial environments, "Data Physics" is paramount. A pipeline cannot just move data; it must ensure:
+---
 
-1.  **Strict Schema Validation:** Preventing data type drift.
-2.  **Latency Tracking:** Monitoring the "freshness" of the data.
-3.  **Auditability:** Structured logging for every batch drop.
+## The Origin Story
 
-> **Narrative Connection:** This rigorous "Data Physics" approach acts as the **Verification Layer** foundation for my AI projects, specifically [BetSpecs-Engine](https://github.com/shifujosh/BetSpecs-Engine).
+Before I built AI systems, I managed data pipelines for global financial institutions at Bloomberg. The stakes were high: a single bad data point could cascade into millions of dollars in trading errors.
 
-## 🛠️ The Stack
-* **Python 3.9+**: Core transformation logic.
-* **Pandas**: Vectorized data manipulation.
-* **YAML**: Configuration management (Env/Prod separation).
-* **SQL**: Strict schema definition (see `schema/market_data.sql`).
+This taught me what I call **"Data Physics"**—the principle that data must be treated like a physical asset. If the structure is wrong, everything downstream breaks.
 
-## 🏗️ Design Decisions
-* **Class-Based Structure:** Modular design allows for easier unit testing and extension.
-* **Validation Layer:** The `validate_batch` method acts as a gatekeeper. In my production experience, catching a `null` here saves hours of debugging downstream in the Data Warehouse.
+---
+
+## Why This Matters for AI
+
+AI systems are probabilistic. They guess. Financial pipelines are deterministic. They verify.
+
+I now apply the same rigor from high-frequency trading to my AI work:
+- **Strict Schemas:** Every data point has a defined type. No drift allowed.
+- **Validation Gates:** Data is checked before it enters the system, not after.
+- **Audit Trails:** Every transformation is logged for debugging.
+
+This is the foundation of the "Trust Layer" in my AI projects like [BetSpecs](https://github.com/shifujosh/BetSpecs-Engine).
+
+---
+
+## What is in This Repo
+
+This is a **sanitized reference architecture**—not proprietary code. It demonstrates the ETL principles I used:
+
+| File | Purpose |
+| :--- | :--- |
+| `src/ingestion_engine.py` | Core transformation logic with validation |
+| `schema/market_data.sql` | Strict SQL schema definition |
+| `pipeline_config.yaml` | Environment-specific configuration |
+
+---
+
+> **[Back to Profile](https://github.com/shifujosh)**
