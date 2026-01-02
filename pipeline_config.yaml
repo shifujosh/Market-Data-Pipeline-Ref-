@@ -1,0 +1,20 @@
+pipeline_settings:
+  environment: "production"
+  log_level: "INFO"
+  batch_size: 5000
+  retries: 3
+
+source_config:
+  type: "kafka_stream"
+  topic: "global_equities_tick_v2"
+  partition_strategy: "ticker_hash"
+
+storage_config:
+  primary_store: "s3://bloomberg-ref-datalake/raw/"
+  warehouse_schema: "market_data"
+  compression: "parquet"
+
+validation_rules:
+  allow_nulls: False
+  price_precision: 4
+  max_latency_ms: 250
