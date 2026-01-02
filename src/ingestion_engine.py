@@ -1,7 +1,7 @@
 import pandas as pd
 import logging
 import yaml
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any
 # Mocking a Kafka Consumer for reference architecture
 from unittest.mock import MagicMock 
@@ -73,7 +73,7 @@ class FinancialDataPipeline:
                 df[col] = df[col].astype(dtype)
         
         # Calculate Ingestion Latency (Simulated)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         df['ingestion_ts'] = now
         
         return self.validate_batch(df)

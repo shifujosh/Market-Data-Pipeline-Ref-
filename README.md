@@ -12,7 +12,7 @@ In high-frequency financial environments, "Data Physics" is paramount. A pipelin
 * **Python 3.9+**: Core transformation logic.
 * **Pandas**: Vectorized data manipulation.
 * **YAML**: Configuration management (Env/Prod separation).
-* **SQL**: Strict schema definition (see `schema.sql`).
+* **SQL**: Strict schema definition (see `schema/market_data.sql`).
 
 ### 🏗️ Design Decisions
 * **Class-Based Structure:** Modular design allows for easier unit testing and extension.
