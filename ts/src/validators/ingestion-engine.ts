@@ -19,6 +19,7 @@ import {
   SymbolContext,
   DeadLetterRecord,
   PipelineConfig,
+  ExchangeCode,
 } from '../types';
 
 // ============================================================================
@@ -368,7 +369,7 @@ export class IngestionEngine {
         price: new Decimal(data.price),
         volume: data.volume,
         timestamp: new Date(data.timestamp).toISOString(),
-        exchange: data.exchange as any,
+        exchange: data.exchange ? ExchangeCode.parse(data.exchange) : undefined,
         sequenceId: data.sequenceId,
       };
       this.updateContext(data);

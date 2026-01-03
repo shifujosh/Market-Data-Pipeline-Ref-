@@ -102,9 +102,9 @@ if __name__ == "__main__":
     
     # Mock data stream
     dummy_data = [
-        {"ticker_symbol": "AAPL", "price": 150.25, "volume": 100, "timestamp": "2023-10-27 10:00:00"},
-        {"ticker_symbol": "GOOGL", "price": -5.00, "volume": 50, "timestamp": "2023-10-27 10:00:01"}, # Malformed
-        {"ticker_symbol": "MSFT", "price": 310.50, "volume": 200, "timestamp": "2023-10-27 10:00:02"}
+        {"ticker_symbol": "AAPL", "price": 150.25, "volume": 100, "timestamp": "2026-01-03 10:00:00"},
+        {"ticker_symbol": "GOOGL", "price": -5.00, "volume": 50, "timestamp": "2026-01-03 10:00:01"}, # Malformed
+        {"ticker_symbol": "MSFT", "price": 310.50, "volume": 200, "timestamp": "2026-01-03 10:00:02"}
     ]
     
     processed_df = pipeline.transform_stream_data(dummy_data)

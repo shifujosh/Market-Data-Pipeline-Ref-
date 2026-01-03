@@ -3,3 +3,7 @@ node_modules/
 ts/node_modules/
 dist/
 ts/dist/
+__pycache__/
+*.pyc
+*.pyo
+.env
