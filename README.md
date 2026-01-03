@@ -2,6 +2,8 @@
 
 > **"Data Physics" - The discipline that makes AI systems reliable.**
 
+[![Schema Validation](https://github.com/shifujosh/Market-Data-Pipeline-Ref-/actions/workflows/schema_validation.yml/badge.svg)](https://github.com/shifujosh/Market-Data-Pipeline-Ref-/actions/workflows/schema_validation.yml)
+
 A reference architecture demonstrating enterprise-grade data validation patterns learned from managing high-frequency financial data pipelines. These same principles power the "Trust Layer" in my AI systems.
 
 ---
