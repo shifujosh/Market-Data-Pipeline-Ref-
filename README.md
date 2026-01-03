@@ -1,4 +1,8 @@
-# Reference: Financial Data Pipeline
+<div align="center">
+  <img src="./assets/market_header.png" alt="Market Data Pipeline" width="100%" />
+</div>
+
+# Market Data Pipeline
 
 > **"Data Physics" - The discipline that makes AI systems reliable.**
 
