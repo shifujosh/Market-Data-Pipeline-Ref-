@@ -204,11 +204,7 @@ python src/ingestion_engine.py
 
 ---
 
-## Live Validation
 
-![Market Data Pipeline Verification](assets/demo_terminal.png)
-
----
 
 ## Why This Matters for AI
 
