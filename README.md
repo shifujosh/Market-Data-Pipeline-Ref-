@@ -161,7 +161,7 @@ interface BackpressureConfig {
 
 ## Project Structure
 
-```
+```text
 ├── ts/                     # TypeScript implementation
 │   ├── src/
 │   │   ├── types/          # Zod schemas
@@ -201,6 +201,12 @@ cd ts && npm install && npm test
 pip install -r requirements.txt
 python src/ingestion_engine.py
 ```
+
+---
+
+## Live Validation
+
+![Market Data Pipeline Verification](assets/demo_terminal.png)
 
 ---
 
